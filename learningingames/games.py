@@ -31,6 +31,19 @@ class Bimatrix3x3:
         # can change
         self.gen_mystery()
 
+        # third game
+        self.third_base = np.array(
+            [
+                [-6,-1,1],
+                [1,-6,-1],
+                [-1,1,6]
+            ]
+        )
+        self.loveties = np.array([self.third_base, self.third_base.transpose()])
+        self.ltgame = nash.Game(self.third_base)
+        self.ltg_xnash = self.ltgame.support_enumeration()
+
+
     def gen_mystery(self):
         self.mystery_base = np.random.randint(-10,10,(3,3))
         self.mysterygame = np.array([self.mystery_base, self.mystery_base.transpose()])
