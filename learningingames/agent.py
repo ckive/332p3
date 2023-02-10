@@ -7,9 +7,10 @@ class OnlineLearner:
     """
     def __init__(self, game, eps=0):
         self.eps = eps
-        self.game = game
-        self.gamesize = game.shape[-1]
+        # self.game = game
+        self.gamesize = game[-1].shape[-1]
         self.weights = np.array([1/self.gamesize]*self.gamesize)
+        # self.bih = 
         
 
 
@@ -25,14 +26,6 @@ class OnlineLearner:
             # chooses action based on weights in exponential weights
             a_j = np.random.choice(self.gamesize, p=self.weights)
             return a_j
-    
-    # def recv_feedback(self, action, payoff):
-    #     # update weights step           (note, 1+eps i think jason typo)
-    #     self.weights[action] = self.weights[action] * np.power(1+self.eps, payoff)
-    #     # normalize
-    #     wsum = sum(self.weights)
-    #     self.weights = self.weights/wsum
-    #     wsum = 1
 
     def recv_feedback(self, payoffs):
         # update weights step           (note, 1+eps i think jason typo)
@@ -41,3 +34,7 @@ class OnlineLearner:
         wsum = sum(self.weights)
         self.weights = self.weights/wsum
         a = 1
+
+    def conclude(self):
+        # runs cumsum on payoffs, gets BIH payoff array of length N return back for regret calculations
+        pass

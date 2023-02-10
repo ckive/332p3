@@ -32,16 +32,23 @@ class Bimatrix3x3:
         self.gen_mystery()
 
         # third game
-        self.third_base = np.array(
+        self.g3_higherval = np.array(
             [
-                [-6,-1,1],
-                [1,-6,-1],
-                [-1,1,6]
+                [7,0,0],
+                [10,5,0],
+                [6,6,3]
             ]
         )
-        self.loveties = np.array([self.third_base, self.third_base.transpose()])
-        self.ltgame = nash.Game(self.third_base)
-        self.ltg_xnash = self.ltgame.support_enumeration()
+        self.g3_lowerval = np.array(
+            [
+                [5,6,2],
+                [0,3,2],
+                [0,0,1]
+            ]
+        )
+        self.g3 = np.array([self.g3_higherval, self.g3_lowerval])
+        self.g3nashgame = nash.Game(self.g3_higherval, self.g3_lowerval)
+        self.g3_xnash = self.g3nashgame.support_enumeration()
 
 
     def gen_mystery(self):

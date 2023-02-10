@@ -5,11 +5,13 @@ from itertools import product
 
 class BiGameEnv:
     def __init__(self, players: List[OnlineLearner], game):
+        # note, the game passed in is the full 2player game
         self.players = players
-        self.gamebase = game
-        self.game = np.array([game, game.transpose()])
-        gameN = game.shape[-1]
+        # self.gamebase = game
+        self.game = game
+        gameN = game[-1].shape[-1]
         self.actionpaircounts = {ap: 0 for ap in product(range(gameN),range(gameN))}
+        self.playerconclusions = []
         
     def run(self, N):
         # runs the game for N rounds, players play simultaneously
@@ -31,7 +33,7 @@ class BiGameEnv:
             self.scoreboard[1][i] = self.game[1][row_a][col_a]
 
             self.players[0].recv_feedback(list(zip(*self.game[0]))[col_a])
-            self.players[1].recv_feedback(list(zip(*self.game[0]))[row_a])
+            self.players[1].recv_feedback(list(zip(*self.game[1]))[row_a])
 
             # for j in range(J):
             #     me = self.playeractions[j][i]
@@ -42,6 +44,10 @@ class BiGameEnv:
             #     # self.players[j].recv_feedback(me, self.scoreboard[j][i])
             #     # my payoff is the opponent's action's possible payoffs
             #     self.players[j].recv_feedback(self.game[j^1][them])
+        
+        # player conclusions
+        for j in range(J):
+            self.players[j].conclude()
 
         
         return self.playeractions, self.scoreboard
@@ -56,3 +62,8 @@ class BiGameEnv:
         for ac_pair, counts in self.actionpaircounts.items():
             print(f"Action Pair: {ac_pair} played {round((counts/n)*100, 3)}% times")
         return self.actionpaircounts
+
+    def analyze_history(self, draw=False):
+        # calculates regret/round and optionally plots
+        rowP = self.players[0]
+        colP = self.players[1]

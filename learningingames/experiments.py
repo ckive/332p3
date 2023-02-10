@@ -9,9 +9,12 @@ import numpy as np
 
 games = Bimatrix3x3()
 
-eps0learner = OnlineLearner(games.at_base, 0.001)
-eps05learner = OnlineLearner(games.at_base, 0.001)
-env = BiGameEnv([eps0learner, eps05learner], games.at_base)
+# eps0learner = OnlineLearner(games.avoidties, 0.001)
+# eps05learner = OnlineLearner(games.avoidties, 0.001)
+# env = BiGameEnv([eps0learner, eps05learner], games.avoidties)
+eps0learner = OnlineLearner(games.g3, 0.001)
+eps05learner = OnlineLearner(games.g3, 0.001)
+env = BiGameEnv([eps0learner, eps05learner], games.g3)
 actions, scoreboard = env.run(100000)
 # print(actions, scoreboard)
 print(scoreboard.sum(axis=1))
