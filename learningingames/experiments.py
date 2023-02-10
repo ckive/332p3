@@ -9,15 +9,16 @@ import numpy as np
 
 games = Bimatrix3x3()
 
-eps0learner = OnlineLearner(games.at_base, 2)
-eps05learner = OnlineLearner(games.at_base, 2)
+eps0learner = OnlineLearner(games.at_base, 0.001)
+eps05learner = OnlineLearner(games.at_base, 0.001)
 env = BiGameEnv([eps0learner, eps05learner], games.at_base)
-actions, scoreboard = env.run(100)
-print(actions, scoreboard)
+actions, scoreboard = env.run(100000)
+# print(actions, scoreboard)
 print(scoreboard.sum(axis=1))
 print('##################')
-env.show_player_weights()
+# env.show_player_weights()
 env.analyze_actions()
 print('##################')
 # for acsj in actions:
 #     print(np.unique(acsj, return_counts=True))
+

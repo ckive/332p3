@@ -26,10 +26,18 @@ class OnlineLearner:
             a_j = np.random.choice(self.gamesize, p=self.weights)
             return a_j
     
-    def recv_feedback(self, action, payoff):
+    # def recv_feedback(self, action, payoff):
+    #     # update weights step           (note, 1+eps i think jason typo)
+    #     self.weights[action] = self.weights[action] * np.power(1+self.eps, payoff)
+    #     # normalize
+    #     wsum = sum(self.weights)
+    #     self.weights = self.weights/wsum
+    #     wsum = 1
+
+    def recv_feedback(self, payoffs):
         # update weights step           (note, 1+eps i think jason typo)
-        self.weights[action] = self.weights[action] * np.power(1+self.eps, payoff)
+        self.weights = self.weights * np.float_power(1+self.eps, payoffs)
         # normalize
         wsum = sum(self.weights)
         self.weights = self.weights/wsum
-        wsum = 1
+        a = 1
