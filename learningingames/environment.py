@@ -16,9 +16,11 @@ class BiGameEnv:
     def run(self, N):
         # runs the game for N rounds, players play simultaneously
         # coordinates payoffs for agents in round i
+        self.N = N
         J = len(self.players)
         self.playeractions = np.zeros((J,N), dtype=int)
         self.scoreboard = np.zeros((J,N))
+        self.cfpayoffs = np.zeros((J,N,3))
         
         for i in range(N):
             # perform action simultaneously for each agent
@@ -32,38 +34,35 @@ class BiGameEnv:
             self.scoreboard[0][i] = self.game[0][row_a][col_a]
             self.scoreboard[1][i] = self.game[1][row_a][col_a]
 
-            self.players[0].recv_feedback(list(zip(*self.game[0]))[col_a])
-            self.players[1].recv_feedback(list(zip(*self.game[1]))[row_a])
+            payoffs_row_sees = np.array(list(zip(*self.game[0]))[col_a])
+            payoffs_col_sees = self.game[1][row_a]
 
-            # for j in range(J):
-            #     me = self.playeractions[j][i]
-            #     them = self.playeractions[j^1][i]
-            #     # self.scoreboard[j][i] = self.gamebase[me][them]
+            self.players[0].recv_feedback(payoffs_row_sees)
+            self.players[1].recv_feedback(payoffs_col_sees)
 
-            #     self.scoreboard[j][i] = self.game[j^1][them][me]
-            #     # self.players[j].recv_feedback(me, self.scoreboard[j][i])
-            #     # my payoff is the opponent's action's possible payoffs
-            #     self.players[j].recv_feedback(self.game[j^1][them])
-        
-        # player conclusions
-        for j in range(J):
-            self.players[j].conclude()
-
+            # store in cf
+            self.cfpayoffs[0][i] = payoffs_row_sees
+            self.cfpayoffs[1][i] = payoffs_col_sees
         
         return self.playeractions, self.scoreboard
 
     def analyze_actions(self):
         # go thru each of the action pairs and count occurence 
-        n = len(self.playeractions[0])
-        for i in range(n):
+        for i in range(self.N):
             action_pair = (self.playeractions[0][i], self.playeractions[1][i])
             self.actionpaircounts[action_pair] += 1
         # print(self.actionpaircounts)
         for ac_pair, counts in self.actionpaircounts.items():
-            print(f"Action Pair: {ac_pair} played {round((counts/n)*100, 3)}% times")
+            print(f"Action Pair: {ac_pair} played {round((counts/self.N)*100, 3)}% times")
         return self.actionpaircounts
 
     def analyze_history(self, draw=False):
-        # calculates regret/round and optionally plots
-        rowP = self.players[0]
-        colP = self.players[1]
+        # calculates regret/round
+
+        cumcfpayoffs = self.cfpayoffs.cumsum(axis=1)
+        bih_payoffs_each_round = np.max(cumcfpayoffs, axis=2)
+
+        actualpayoffs_each_round = self.scoreboard.cumsum(axis=1)
+        regret_per_round = (bih_payoffs_each_round - actualpayoffs_each_round) / list(range(1,self.N+1))
+        return regret_per_round
+

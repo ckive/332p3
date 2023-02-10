@@ -10,7 +10,6 @@ class OnlineLearner:
         # self.game = game
         self.gamesize = game[-1].shape[-1]
         self.weights = np.array([1/self.gamesize]*self.gamesize)
-        # self.bih = 
         
 
 
@@ -33,8 +32,3 @@ class OnlineLearner:
         # normalize
         wsum = sum(self.weights)
         self.weights = self.weights/wsum
-        a = 1
-
-    def conclude(self):
-        # runs cumsum on payoffs, gets BIH payoff array of length N return back for regret calculations
-        pass
