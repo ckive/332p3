@@ -92,8 +92,13 @@ int main()
     // Format: payoff[p][a1][a2] = payoff for player p, if (a1, a2) is played.
     const vector<vector<vector<double>>> NO_TIE_RPS = {{{-6, -1, 1}, {1, -6, -1}, {-1, 1, -6}}, {{-6, 1, -1}, {-1, -6, 1}, {1, -1, -6}}};
     const vector<vector<vector<double>>> GO_TIE_RPS = {{{6, -1, 1}, {1, 6, -1}, {-1, 1, 6}}, {{6, 1, -1}, {-1, 6, 1}, {1, -1, 6}}};
+    const vector<vector<vector<double>>> AUCTION1 = {{{5, 0, 0}, {6, 3, 0}, {2, 2, 1}}, {{3, 2, -2}, {0, 1, -2}, {0, 0, -1}}};
+    const vector<vector<vector<double>>> AUCTION2 = {{{7, 0, 0}, {10, 5, 0}, {6, 6, 3}}, {{5, 6, 2}, {0, 3, 2}, {0, 0, 1}}};
+
 
     playGame(NO_TIE_RPS, 0.001, 0.001, 1000000, 1);
+    // playGame(AUCTION2, 0.001, 0.001, 1000000, 6);
+    // playGame(AUCTION2, 0, 0.1, 1000000, 6);
     return 0;
 }
 
