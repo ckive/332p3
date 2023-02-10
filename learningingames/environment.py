@@ -6,7 +6,8 @@ from itertools import product
 class BiGameEnv:
     def __init__(self, players: List[OnlineLearner], game):
         self.players = players
-        self.game = game
+        self.gamebase = game
+        self.game = np.array([game, game.transpose()])
         gameN = game.shape[-1]
         self.actionpaircounts = {ap: 0 for ap in product(range(gameN),range(gameN))}
         
@@ -26,8 +27,10 @@ class BiGameEnv:
             for j in range(J):
                 me = self.playeractions[j][i]
                 them = self.playeractions[j^1][i]
-                self.scoreboard[j][i] = self.game[me][them]
-                self.players[j].recv_feedback(me, self.scoreboard[j][i])
+                self.scoreboard[j][i] = self.gamebase[me][them]
+                # self.players[j].recv_feedback(me, self.scoreboard[j][i])
+                # my payoff is the opponent's action's possible payoffs
+                self.players[j].recv_feedback(self.game[j^1][them])
 
         
         return self.playeractions, self.scoreboard
@@ -36,7 +39,7 @@ class BiGameEnv:
         # go thru each of the action pairs and count occurence 
         n = len(self.playeractions[0])
         for i in range(n):
-            action_pair = (self.playeractions[0][i], self.playeractions[0][i])
+            action_pair = (self.playeractions[0][i], self.playeractions[1][i])
             self.actionpaircounts[action_pair] += 1
         print(self.actionpaircounts)
         return self.actionpaircounts
