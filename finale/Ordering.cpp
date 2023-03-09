@@ -168,6 +168,39 @@ vector<double> guessValue(const vector<double> &actualWin, const vector<double> 
     return guess;
 }
 
+double getSum(const vector<double> &a)
+{
+    double ret = 0.0;
+    for(double v: a) ret += v;
+    return ret;
+}
+
+double revenueEvaluation(const vector<double> values, const vector<double> &slots, const double reservePrice, int T)
+{
+    vector<double> possibleBid; for(int i = 0; i < 20; i++) possibleBid.push_back(0.05 * i);
+    vector<OrderingExponentialAgent> agents;
+    for(double v: values) agents.push_back(OrderingExponentialAgent(v, 0.1, possibleBid));
+    auto auctionLog = orderingAuction(agents, slots, possibleBid, T, reservePrice);
+    return getSum(auctionLog.first.second);
+}
+
+double reserveSearch(const vector<double> values, const vector<double> &slots, const vector<double> &reserveCandidates)
+{
+    const int T = 100000;
+    double bestRevenue = 0.0;
+    double bestReserve = 0.0;
+    for(double r: reserveCandidates)
+    {
+        const double revenue = revenueEvaluation(values, slots, r, T);
+        if(revenue > bestRevenue)
+        {
+            bestRevenue = revenue;
+            bestReserve = r;
+        }
+    }
+    return bestReserve;
+}
+
 void partTwoExperiment(const vector<double> realValues, const vector<double> slots, const double EPS = 0.1)
 {
     const int n = realValues.size();
@@ -178,14 +211,31 @@ void partTwoExperiment(const vector<double> realValues, const vector<double> slo
     pair< pair<vector<double>,vector<double>>, vector<vector<double>>> auctionLog = orderingAuction(agents, slots, possibleBid, 100000, 0.0);
 
     vector<double> winProb = auctionLog.first.first;
-    fprintf(stderr,"winProb: "); for(int i = 0; i < n; i++) fprintf(stderr,"%.4lf ", winProb[i]); fprintf(stderr,"\n");
+    // fprintf(stderr,"winProb: "); for(int i = 0; i < n; i++) fprintf(stderr,"%.4lf ", winProb[i]); fprintf(stderr,"\n");
     vector<double> payment = auctionLog.first.second;
-    fprintf(stderr,"payment: "); for(int i = 0; i < n; i++) fprintf(stderr,"%.4lf ", payment[i]); fprintf(stderr,"\n");
+    // fprintf(stderr,"payment: "); for(int i = 0; i < n; i++) fprintf(stderr,"%.4lf ", payment[i]); fprintf(stderr,"\n");
+
+
+
+    const double R1 = getSum(auctionLog.first.second);
+    printf("Base Revenue: %.4lf\n", R1);
 
     vector<double> possibleValues(100); for(int i = 0; i < 100; i++) possibleValues.push_back(0.01 * i);
 
     vector<double> guess = guessValue(auctionLog.first.first, auctionLog.first.second, auctionLog.second, possibleBid, possibleValues);
     printf("Guess: "); for(int i = 0; i < n; i++) printf("%.2lf ", guess[i]); printf("\n");
+
+    double r_OPT = reserveSearch(realValues, slots, possibleBid);
+    printf("Optimal Reserve: %.4lf\n", r_OPT);
+
+    double r_guess = reserveSearch(guess, slots, possibleBid);
+    printf("Tuned Reserve: %.4lf\n", r_guess);
+
+    double rev_OPT = revenueEvaluation(realValues, slots, r_OPT, 1000000);
+    double rev_ALG = revenueEvaluation(realValues, slots, r_guess, 1000000);
+
+    printf("Optimal Revenue: %.4lf\n", rev_OPT);
+    printf("Tuned Revenue: %.4lf\n", rev_ALG);
 }
 
 int main()
